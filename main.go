@@ -72,7 +72,7 @@ func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "body 的值为: %v <br>", body)
 		fmt.Fprintf(w, "body 的长度为: %v <br>", len(body))
 	} else {
-		fmt.Fprintf(w, "有错误发生，errors 的值为: %v <br>", errors)
+		// fmt.Fprintf(w, "有错误发生，errors 的值为: %v <br>", errors)
 
 		html := `
 <!DOCTYPE html>
