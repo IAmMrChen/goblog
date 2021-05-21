@@ -1,12 +1,12 @@
 package main
 
 import (
+	"cyc/goblog/pkg/database"
 	"cyc/goblog/pkg/logger"
 	"cyc/goblog/pkg/route"
 	"cyc/goblog/pkg/types"
 	"database/sql"
 	"fmt"
-	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"html/template"
@@ -16,38 +16,11 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 	"unicode/utf8"
 )
 
 var router *mux.Router
 var db *sql.DB
-
-func initDB()  {
-	var err error
-	config := mysql.Config{
-		User:                 "root",
-		Passwd:               "123456",
-		Addr:                 "127.0.0.1:3305",
-		Net:                  "tcp",
-		DBName:               "goblog",
-		AllowNativePasswords: true,
-	}
-
-	db, err = sql.Open("mysql", config.FormatDSN())
-	logger.LogError(err)
-
-	// 设置最大连接数
-	db.SetMaxOpenConns(25)
-	// 设置最大空闲连接数
-	db.SetConnMaxIdleTime(25)
-	// 设置每个链接的过期时间
-	db.SetConnMaxLifetime(5 * time.Minute)
-
-	// 尝试链接，失败报错
-	err = db.Ping()
-	logger.LogError(err)
-}
 
 func checkError(err error)  {
 	if err != nil {
@@ -278,18 +251,6 @@ func articlesCreateHandle(w http.ResponseWriter, r *http.Request)  {
 
 }
 
-func createTables()  {
-	createArticlesSql := `CREATE TABLE IF NOT EXISTS articles(
-    	id bigint(20) PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    	title varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-    	body longtext COLLATE utf8mb4_unicode_ci
-	);`
-
-	_, err := db.Exec(createArticlesSql)
-
-	logger.LogError(err)
-}
-
 func articlesEditHandler(w http.ResponseWriter, r *http.Request)  {
 	// 1. 获取URL参数
 	id := route.GetRouteVariable("id", r)
@@ -478,11 +439,11 @@ func validateArticleFormData(title string, body string) map[string]string {
 }
 
 func main()  {
-	initDB()
-	createTables()
-
 	route.Initialize()
 	router = route.Router
+
+	database.Initialize()
+	db = database.DB
 
 	router.HandleFunc("/", homeHandler).Methods("GET").Name("home")
 	router.HandleFunc("/about", aboutHandler).Methods("GET").Name("about")
