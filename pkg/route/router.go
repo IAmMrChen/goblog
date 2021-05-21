@@ -1,6 +1,7 @@
 package route
 
 import (
+	"cyc/goblog/routes"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -9,6 +10,7 @@ var Router *mux.Router
 
 func Initialize()  {
 	Router = mux.NewRouter()
+	routes.RegisterWebRoutes(Router)
 }
 
 func Name2URL(routeName string, pair ...string) string  {
