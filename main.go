@@ -54,6 +54,8 @@ func checkError(err error)  {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("haha")
+	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "<h1>Hello, 欢迎来到 goblog！</h1>")
 }
 
@@ -258,8 +260,12 @@ func forceHTMLMiddleware(next http.Handler) http.Handler {
 
 func removeTrailingSlash(next http.Handler) http.Handler  {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.URL.Path)
-		r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+		if r.URL.Path != "/" {
+			fmt.Println("before" + r.URL.Path)
+			r.URL.Path = strings.TrimSuffix(r.URL.Path, "/")
+			fmt.Println("after" + r.URL.Path)
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
@@ -508,12 +514,6 @@ func main()  {
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	//router.Use(forceHTMLMiddleware)
-
-	// 通过命名路由获取 URL 示例
-	homeURL, _ := router.Get("home").URL()
-	fmt.Println("homeURL: ", homeURL)
-	articleURL, _ := router.Get("articles.show").URL("id", "23")
-	fmt.Println("articleURL: ", articleURL)
 
 	http.ListenAndServe(":3000", removeTrailingSlash(router))
 }
