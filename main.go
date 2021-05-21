@@ -440,6 +440,7 @@ func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
 				indexURL, _ := router.Get("articles.index").URL()
 				http.Redirect(w, r, indexURL.String(), http.StatusFound)
 			} else {
+				w.WriteHeader(http.StatusNotFound)
 				fmt.Fprint(w, "404 文章未找到")
 			}
 		}
@@ -513,7 +514,7 @@ func main()  {
 	// 自定义 404 页面
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
-	//router.Use(forceHTMLMiddleware)
+	router.Use(forceHTMLMiddleware)
 
 	http.ListenAndServe(":3000", removeTrailingSlash(router))
 }
