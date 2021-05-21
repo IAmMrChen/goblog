@@ -83,11 +83,32 @@ func articlesShowHandler(w http.ResponseWriter, r *http.Request)  {
 		}
 	} else {
 
-		tmpl, err := template.ParseFiles("resources/views/articles/show.gohtml")
+		tmpl, err := template.New("show.gohtml").
+			Funcs(template.FuncMap{
+				"RouteName2URL": RouteName2URL,
+				"Int64ToString": Int64ToString,
+			}).
+			ParseFiles("resources/views/articles/show.gohtml")
+
 		checkError(err)
 
 		tmpl.Execute(w, article)
 	}
+}
+
+func RouteName2URL(routeName string, pair ...string) string  {
+	url, err := router.Get(routeName).URL(pair...)
+
+	if err != nil {
+		checkError(err)
+		return ""
+	}
+
+	return url.String()
+}
+
+func Int64ToString(num int64) string  {
+	return strconv.FormatInt(num, 10)
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
@@ -378,6 +399,62 @@ func articlesUpdateHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
+func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
+	// 1.获取URL参数
+	id := getRouteVariable("id", r)
+
+	// 2. 获取已经存在的文章
+	article, err := getArticleByID(id)
+
+	// 3.如果出现错误
+	if err != nil {
+		if err == sql.ErrNoRows {
+			// 3.1 数据未找到
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "404 文章未找到")
+		} else {
+			// 3.2 数据库错误
+			checkError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "500 服务器内部错误")
+		}
+	} else {
+		// 4. 未出现错误，执行删除操作
+		rowAffected, err := article.Delete()
+
+		// 4.1 发生错误
+		if err != nil {
+			checkError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Fprint(w, "500 服务器内部错误")
+		} else {
+			// 4.2 未发生错误
+			if rowAffected > 0 {
+				// 重定向到文章列表页面
+				indexURL, _ := router.Get("articles.index").URL()
+				http.Redirect(w, r, indexURL.String(), http.StatusFound)
+			} else {
+				fmt.Fprint(w, "404 文章未找到")
+			}
+		}
+	}
+}
+
+func (a Article) Delete() (rowAffected int64, err error)  {
+	rs, err := db.Exec("delete from articles where id = " + strconv.FormatInt(a.ID, 10))
+
+	if err != nil {
+		return 0, err
+	}
+
+	// 删除成功，跳转到文章详情页面
+	if n, _ := rs.RowsAffected(); n > 0 {
+		return n, nil
+	}
+
+	return 0, nil
+}
+
 func getRouteVariable(parameterName string, r *http.Request) string  {
 	vars := mux.Vars(r)
 
@@ -425,6 +502,7 @@ func main()  {
 	router.HandleFunc("/articles/create", articlesCreateHandle).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
+	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
 
 	// 自定义 404 页面
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
