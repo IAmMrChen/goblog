@@ -2,11 +2,14 @@ package routes
 
 import (
 	"cyc/goblog/app/http/controllers"
+	"cyc/goblog/app/http/middlewares"
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func RegisterWebRoutes(r *mux.Router) {
+
+	r.Use(middlewares.ForceHTML)
 
 	// 静态页面
 	pc := new(controllers.PagesController)

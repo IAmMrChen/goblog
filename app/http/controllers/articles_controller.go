@@ -160,7 +160,7 @@ func validateArticleFormData(title string, body string) map[string]string {
 	return errors
 }
 
-func (*ArticlesController)Edit(w http.ResponseWriter, r *http.Request)  {
+func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 	// 1. 获取URL参数
 	id := route.GetRouteVariable("id", r)
 
