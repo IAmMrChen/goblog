@@ -156,72 +156,6 @@ func articlesEditHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func articlesUpdateHandler(w http.ResponseWriter, r *http.Request)  {
-	// 1. 获取URL参数
-	id := getRouteVariable("id", r)
-
-	// 2. 读取对应的文章数据
-	_, err := getArticleByID(id)
-
-	// 3. 如果出现错误
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// 3.1 数据未找到
-			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "404 文章未找到")
-		} else {
-			// 3.2 数据库错误
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		}
-	} else {
-		// 4.未出现错误
-
-		// 4.1 表单验证
-		title := r.PostFormValue("title")
-		body := r.PostFormValue("body")
-
-		errors := validateArticleFormData(title, body)
-
-		if len(errors) == 0 {
-			// 4.2 验证通过，更新数据
-
-			query := "update articles set title = ?,body = ? where id = ?"
-			rs, err := db.Exec(query, title, body, id)
-
-			if err != nil {
-				logger.LogError(err)
-				w.WriteHeader(http.StatusInternalServerError)
-				fmt.Fprint(w, "500 服务器内部错误")
-			}
-
-			// 更新成功，跳转到文章详情页面
-			if n, _ := rs.RowsAffected(); n > 0 {
-				showUrl, _ := router.Get("articles.show").URL("id", id)
-				http.Redirect(w, r, showUrl.String(), http.StatusFound)
-			} else {
-				fmt.Fprint(w, "您没有做任何更改！")
-			}
-		} else {
-			// 4.3 表单验证不通过，显示理由
-			updateUrl, _ := router.Get("articles.update").URL("id", id)
-
-			data := ArticlesFormData{
-				Title: title,
-				Body:  body,
-				URL:   updateUrl,
-				Errors: errors,
-			}
-
-			tmpl, err := template.ParseFiles("resources/views/articles/edit.gohtml")
-			logger.LogError(err)
-
-			tmpl.Execute(w, data)
-		}
-	}
-}
-
 func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
 	// 1.获取URL参数
 	id := getRouteVariable("id", r)
@@ -315,7 +249,6 @@ func main()  {
 	db = database.DB
 
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
-	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
 
 	router.Use(forceHTMLMiddleware)
