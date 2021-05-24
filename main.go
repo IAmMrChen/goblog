@@ -59,49 +59,7 @@ type ArticlesFormData struct {
 	Errors      map[string]string
 }
 
-func articlesStoreHandler(w http.ResponseWriter, r *http.Request) {
 
-	title := r.PostFormValue("title")
-	body := r.PostFormValue("body")
-
-	errors := validateArticleFormData(title, body)
-
-	// 检查是否有错误
-	if len(errors) == 0 {
-
-		lastInsertID, err := saveArticleToDB(title, body)
-
-		if lastInsertID > 0 {
-			fmt.Fprint(w, "插入成功，ID为" + strconv.FormatInt(lastInsertID, 10))
-		} else {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内容错误")
-		}
-
-	} else {
-
-		storeURL, _ := router.Get("articles.store").URL()
-
-		data := ArticlesFormData{
-			Title:  title,
-			Body:   body,
-			URL:    storeURL,
-			Errors: errors,
-		}
-
-
-		tmpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
-
-		if err != nil {
-			panic(err)
-		}
-
-		tmpl.Execute(w, data)
-
-	}
-	
-}
 
 func saveArticleToDB(title string, body string) (int64, error)  {
 	// 变量初始化
@@ -156,26 +114,7 @@ func removeTrailingSlash(next http.Handler) http.Handler  {
 	})
 }
 
-func articlesCreateHandle(w http.ResponseWriter, r *http.Request)  {
 
-	storeURL, _ := router.Get("articles.store").URL()
-
-	data := ArticlesFormData{
-		Title:  "",
-		Body:   "",
-		URL:    storeURL,
-		Errors: nil,
-	}
-
-	tmpl, err := template.ParseFiles("resources/views/articles/create.gohtml")
-
-	if err != nil {
-		panic(err)
-	}
-
-	tmpl.Execute(w, data)
-
-}
 
 func getRouteVariable(parameterName string, r *http.Request) string {
 	vars := mux.Vars(r)
@@ -375,11 +314,6 @@ func main()  {
 	database.Initialize()
 	db = database.DB
 
-
-
-	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
-
-	router.HandleFunc("/articles/create", articlesCreateHandle).Methods("GET").Name("articles.create")
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
 	router.HandleFunc("/articles/{id:[0-9]+}", articlesUpdateHandler).Methods("POST").Name("articles.update")
 	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
