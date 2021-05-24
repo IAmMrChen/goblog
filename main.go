@@ -12,7 +12,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -50,49 +49,9 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "<h1>请求页面未找到 :(</h1><p>如有疑惑，请联系我们。</p>")
 }
 
-func articlesIndexHandler(w http.ResponseWriter, r *http.Request) {
-	// 1. 执行查询语句，返回一个结果集
-	rows, err := db.Query("select * from articles")
-	logger.LogError(err)
-	defer rows.Close()
 
-	var articles []Article
 
-	for rows.Next() {
-		var article Article
-		// 2.1 扫描每一行的结果并赋值到一个article对象中
-		err := rows.Scan(&article.ID, &article.Title, &article.Body)
 
-		logger.LogError(err)
-
-		// 2.2 将article追加到articles的这个切片中
-		articles = append(articles, article)
-	}
-
-	// 2.3 检查遍历时是否发生错误
-	err = rows.Err()
-	logger.LogError(err)
-
-	// 3. 加载模版
-	tmpl, err := template.ParseFiles("resources/views/articles/index.gohtml")
-	logger.LogError(err)
-	fmt.Println(reflect.TypeOf(articles))
-	fmt.Println(reflect.ValueOf(articles))
-	// 4. 渲染模版，将所有文章展示
-	tmpl.Execute(w, articles)
-
-}
-
-func (a Article) Link() string {
-	showURL, err := router.Get("articles.show").URL("id", strconv.FormatInt(a.ID, 10))
-
-	if err != nil {
-		logger.LogError(err)
-		return ""
-	}
-
-	return showURL.String()
-}
 
 type ArticlesFormData struct {
 	Title, Body string
@@ -417,7 +376,7 @@ func main()  {
 	db = database.DB
 
 
-	router.HandleFunc("/articles", articlesIndexHandler).Methods("GET").Name("articles.index")
+
 	router.HandleFunc("/articles", articlesStoreHandler).Methods("POST").Name("articles.store")
 
 	router.HandleFunc("/articles/create", articlesCreateHandle).Methods("GET").Name("articles.create")
