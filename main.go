@@ -156,48 +156,6 @@ func articlesEditHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 }
 
-func articlesDeleteHandler(w http.ResponseWriter, r *http.Request)  {
-	// 1.获取URL参数
-	id := getRouteVariable("id", r)
-
-	// 2. 获取已经存在的文章
-	article, err := getArticleByID(id)
-
-	// 3.如果出现错误
-	if err != nil {
-		if err == sql.ErrNoRows {
-			// 3.1 数据未找到
-			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "404 文章未找到")
-		} else {
-			// 3.2 数据库错误
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		}
-	} else {
-		// 4. 未出现错误，执行删除操作
-		rowAffected, err := article.Delete()
-
-		// 4.1 发生错误
-		if err != nil {
-			logger.LogError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprint(w, "500 服务器内部错误")
-		} else {
-			// 4.2 未发生错误
-			if rowAffected > 0 {
-				// 重定向到文章列表页面
-				indexURL, _ := router.Get("articles.index").URL()
-				http.Redirect(w, r, indexURL.String(), http.StatusFound)
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-				fmt.Fprint(w, "404 文章未找到")
-			}
-		}
-	}
-}
-
 func (a Article) Delete() (rowAffected int64, err error)  {
 	rs, err := db.Exec("delete from articles where id = " + strconv.FormatInt(a.ID, 10))
 
@@ -249,7 +207,6 @@ func main()  {
 	db = database.DB
 
 	router.HandleFunc("/articles/{id:[0-9]+}/edit", articlesEditHandler).Methods("GET").Name("articles.edit")
-	router.HandleFunc("/articles/{id:[0-9]+}/delete", articlesDeleteHandler).Methods("POST").Name("articles.delete")
 
 	router.Use(forceHTMLMiddleware)
 
