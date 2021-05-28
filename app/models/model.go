@@ -1,6 +1,8 @@
 package models
 
-import "cyc/goblog/pkg/types"
+import (
+	"cyc/goblog/pkg/types"
+)
 
 type BaseModel struct {
 	ID uint64

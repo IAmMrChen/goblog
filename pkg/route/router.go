@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -12,7 +13,7 @@ func SetRoute(r *mux.Router)  {
 }
 
 func Name2URL(routeName string, pair ...string) string  {
-
+	fmt.Println(pair)
 	url, err := Router.Get(routeName).URL(pair...)
 
 	if err != nil {
