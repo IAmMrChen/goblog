@@ -16,6 +16,7 @@ func Get(idstr string) (Article, error)  {
 	return article, nil
 }
 
+
 func GetAll() ([]Article, error)  {
 	var articles []Article
 

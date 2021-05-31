@@ -36,7 +36,7 @@ func (*ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// ---  4. 读取成功，显示文章 ---
-		view.Render(w, articles, "articles.show")
+		view.Render(w, view.D{"Article": articles}, "articles.show")
 
 	}
 }
@@ -52,7 +52,9 @@ func (*ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "500 服务器内部错误")
 	} else {
 		// ---  2. 加载模板 ---
-		view.Render(w, articles, "articles.index")
+		view.Render(w, view.D{
+			"Articles": articles,
+		}, "articles.index")
 
 	}
 }
@@ -65,7 +67,7 @@ type ArticlesFormData struct {
 }
 
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request)  {
-	view.Render(w, ArticlesFormData{}, "articles.create", "articles._form_field")
+	view.Render(w, view.D{}, "articles.create", "articles._form_field")
 }
 
 func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
@@ -91,10 +93,12 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 		}
 
 	} else {
-		view.Render(w, ArticlesFormData{
-			Title: title,
-			Body: body,
-			Errors: errors,
+		view.Render(w, view.D{
+			"Article": ArticlesFormData{
+				Title: title,
+				Body: body,
+				Errors: errors,
+			},
 		}, "articles.create", "articles._form_field")
 	}
 }
@@ -137,11 +141,13 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 		}
 	} else {
 		// 4. 读取成功，显示表单
-		view.Render(w, ArticlesFormData{
-			Title: _article.Title,
-			Body: _article.Body,
-			Article: _article,
-			Errors: nil,
+		view.Render(w, view.D{
+			"Article": ArticlesFormData{
+				Title: _article.Title,
+				Body: _article.Body,
+				Article: _article,
+				Errors: nil,
+			},
 		}, "articles.edit", "articles._form_field")
 	}
 }
@@ -196,11 +202,13 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 			}
 		} else {
 			// 4.3 表单验证不通过，显示理由
-			view.Render(w, ArticlesFormData{
-				Title:   title,
-				Body:    body,
-				Article: _article,
-				Errors:  errors,
+			view.Render(w, view.D{
+				"Article": ArticlesFormData{
+					Title:   title,
+					Body:    body,
+					Article: _article,
+					Errors:  errors,
+				},
 			}, "articles.edit", "articles._form_field")
 		}
 	}
