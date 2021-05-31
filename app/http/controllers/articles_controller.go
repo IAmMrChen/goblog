@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"cyc/goblog/app/models/article"
+	"cyc/goblog/app/requests"
 	"cyc/goblog/pkg/logger"
 	"cyc/goblog/pkg/route"
 	"cyc/goblog/pkg/view"
@@ -75,18 +76,21 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 	title := r.PostFormValue("title")
 	body := r.PostFormValue("body")
 
-	errors := validateArticleFormData(title, body)
+	_article := article.Article{
+		Title: title,
+		Body:  body,
+	}
+
+	// 2. 表单验证
+	errors := requests.ValidateArticleForm(_article)
 
 	// 检查是否有错误
 	if len(errors) == 0 {
-		_article := article.Article{
-			Title: title,
-			Body:  body,
-		}
 		_article.Create()
 
 		if _article.ID > 0 {
-			fmt.Fprint(w, "插入成功，ID为" + _article.GetStringID())
+			indexURL := route.Name2URL("articles.show", "id", _article.GetStringID())
+			http.Redirect(w, r, indexURL, http.StatusFound)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			fmt.Fprint(w, "500 服务器内容错误")
@@ -94,11 +98,8 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 
 	} else {
 		view.Render(w, view.D{
-			"Article": ArticlesFormData{
-				Title: title,
-				Body: body,
-				Errors: errors,
-			},
+			"Article": _article,
+			"Errors": errors,
 		}, "articles.create", "articles._form_field")
 	}
 }
@@ -142,12 +143,8 @@ func (*ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 	} else {
 		// 4. 读取成功，显示表单
 		view.Render(w, view.D{
-			"Article": ArticlesFormData{
-				Title: _article.Title,
-				Body: _article.Body,
-				Article: _article,
-				Errors: nil,
-			},
+			"Article": _article,
+			"Errors": view.D{},
 		}, "articles.edit", "articles._form_field")
 	}
 }
@@ -172,43 +169,39 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 			fmt.Fprint(w, "500 服务器内部错误")
 		}
 	} else {
-		// 4.未出现错误
+		// 4. 未出现错误
 
 		// 4.1 表单验证
-		title := r.PostFormValue("title")
-		body := r.PostFormValue("body")
+		_article.Title = r.PostFormValue("title")
+		_article.Body = r.PostFormValue("body")
 
-		errors := validateArticleFormData(title, body)
+		errors := requests.ValidateArticleForm(_article)
 
 		if len(errors) == 0 {
-			// 4.2 验证通过，更新数据
-			_article.Title = title
-			_article.Body = body
 
+			// 4.2 表单验证通过，更新数据
 			rowsAffected, err := _article.Update()
 
 			if err != nil {
-				logger.LogError(err)
+				// 数据库错误
 				w.WriteHeader(http.StatusInternalServerError)
 				fmt.Fprint(w, "500 服务器内部错误")
+				return
 			}
 
-			// 更新成功，跳转到文章详情页面
+			// √ 更新成功，跳转到文章详情页
 			if rowsAffected > 0 {
-				showUrl := route.Name2URL("articles.show", "id", id)
-				http.Redirect(w, r, showUrl, http.StatusFound)
+				showURL := route.Name2URL("articles.show", "id", id)
+				http.Redirect(w, r, showURL, http.StatusFound)
 			} else {
 				fmt.Fprint(w, "您没有做任何更改！")
 			}
 		} else {
+
 			// 4.3 表单验证不通过，显示理由
 			view.Render(w, view.D{
-				"Article": ArticlesFormData{
-					Title:   title,
-					Body:    body,
-					Article: _article,
-					Errors:  errors,
-				},
+				"Article": _article,
+				"Errors":  errors,
 			}, "articles.edit", "articles._form_field")
 		}
 	}
