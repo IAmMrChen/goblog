@@ -1,6 +1,9 @@
 package user
 
-import "cyc/goblog/app/models"
+import (
+	"cyc/goblog/app/models"
+	password2 "cyc/goblog/pkg/password"
+)
 
 type User struct {
 	models.BaseModel
@@ -16,5 +19,5 @@ type User struct {
 
 // ComparePassword 对比密码是否匹配
 func (user User) ComparePassword(password string) bool  {
-	return user.Password == password
+	return password2.CheckHash(password, user.Password)
 }
