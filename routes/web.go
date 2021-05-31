@@ -2,6 +2,7 @@ package routes
 
 import (
 	"cyc/goblog/app/http/controllers"
+	"cyc/goblog/app/http/middlewares"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -26,13 +27,19 @@ func RegisterWebRoutes(r *mux.Router) {
 	r.HandleFunc("/articles/{id:[0-9]+}", ac.Update).Methods("POST").Name("articles.update")
 	r.HandleFunc("/articles/{id:[0-9]+}/delete", ac.Delete).Methods("POST").Name("articles.delete")
 
-	// 静态资源
-	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
-	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
 
 	// 用户认证
 	auc := new(controllers.AuthController)
 	r.HandleFunc("/auth/register", auc.Register).Methods("GET").Name("auth.register")
 	r.HandleFunc("/auth/do-register", auc.DoRegister).Methods("POST").Name("auth.doregister")
+	r.HandleFunc("/auth/login", auc.Login).Methods("GET").Name("auth.login")
+	r.HandleFunc("/auth/dologin", auc.DoLogin).Methods("POST").Name("auth.dologin")
 
+	// 静态资源
+	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
+	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
+
+	// ----- 全局中间件 -----
+	// 开始会话
+	r.Use(middlewares.StartSession)
 }
