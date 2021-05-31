@@ -65,7 +65,7 @@ type ArticlesFormData struct {
 }
 
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request)  {
-	view.Render(w, ArticlesFormData{},"articles.create")
+	view.Render(w, ArticlesFormData{}, "articles.create", "articles._form_field")
 }
 
 func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {

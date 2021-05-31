@@ -4,18 +4,15 @@ import (
 	"cyc/goblog/pkg/logger"
 	"cyc/goblog/pkg/model"
 	"cyc/goblog/pkg/types"
-	"fmt"
 )
 
 func Get(idstr string) (Article, error)  {
 	var article Article
 
 	id := types.StringToInt(idstr)
-	fmt.Println(id)
 	if err := model.DB.First(&article, id).Error; err != nil {
 		return article, err
 	}
-	fmt.Println(article)
 	return article, nil
 }
 
