@@ -2,10 +2,12 @@ package requests
 
 import (
 	"cyc/goblog/app/models/article"
+	"fmt"
 	"github.com/thedevsaddam/govalidator"
 )
 
 // ValidateArticleForm 验证表单，返回 errs 长度等于零即通过
+// todo 这个验证其有毒，验证不过去，先注释，后面再来检查
 func ValidateArticleForm(data article.Article) map[string][]string {
 
 	// 1. 定制认证规则
@@ -26,7 +28,8 @@ func ValidateArticleForm(data article.Article) map[string][]string {
 			"min:长度需大于 10",
 		},
 	}
-
+	fmt.Println("data is")
+	fmt.Printf("%+v \n", data)
 	// 3. 配置初始化
 	opts := govalidator.Options{
 		Data:          &data,
@@ -34,7 +37,7 @@ func ValidateArticleForm(data article.Article) map[string][]string {
 		TagIdentifier: "valid", // 模型中的 Struct 标签标识符
 		Messages:      messages,
 	}
-
 	// 4. 开始验证
 	return govalidator.New(opts).ValidateStruct()
+
 }

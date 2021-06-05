@@ -83,7 +83,7 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 
 	// 2. 表单验证
 	errors := requests.ValidateArticleForm(_article)
-
+	fmt.Println(errors)
 	// 检查是否有错误
 	if len(errors) == 0 {
 		_article.Create()
@@ -155,7 +155,8 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 
 	// 2. 读取对应的文章数据
 	_article, err := article.Get(id)
-
+	fmt.Println("_article is")
+	fmt.Println(_article)
 	// 3. 如果出现错误
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -174,7 +175,8 @@ func (*ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 		// 4.1 表单验证
 		_article.Title = r.PostFormValue("title")
 		_article.Body = r.PostFormValue("body")
-
+		fmt.Println("_article is")
+		fmt.Println(_article)
 		errors := requests.ValidateArticleForm(_article)
 
 		if len(errors) == 0 {
