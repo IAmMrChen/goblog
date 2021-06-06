@@ -1,7 +1,9 @@
 package model
 
 import (
+	"cyc/goblog/pkg/config"
 	"cyc/goblog/pkg/logger"
+	"fmt"
 	"gorm.io/gorm"
 	// GORM 的 MySQL 数据库驱动导入
 	"gorm.io/driver/mysql"
@@ -16,14 +18,34 @@ func ConnectDB() *gorm.DB {
 
 	var err error
 
-	config := mysql.New(mysql.Config{
-		DSN: "root:123456@tcp(127.0.0.1:3305)/goblog?charset=utf8mb4&parseTime=True&loc=Local", // 公司
+	// 初始化mysql连接信息
+	var (
+		host     = config.GetString("database.mysql.host")
+		port     = config.GetString("database.mysql.port")
+		database = config.GetString("database.mysql.database")
+		username = config.GetString("database.mysql.username")
+		password = config.GetString("database.mysql.password")
+		charset  = config.GetString("database.mysql.charset")
+	)
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=%t&loc=%s",
+		username, password, host, port, database, charset, true, "Local")
+
+	gormConfig := mysql.New(mysql.Config{
+		DSN: dsn, // 公司
 		//DSN: "root:123456@tcp(127.0.0.1:3306)/goblog?charset=utf8mb4&parseTime=True&loc=Local",   // 家里
 	})
 
+	var level gormlogger.LogLevel
+	if config.GetBool("app.debug") {
+		level = gormlogger.Warn
+	} else {
+		level = gormlogger.Error
+	}
+
 	// 准备数据库连接池
-	DB, err = gorm.Open(config, &gorm.Config{
-		Logger: gormlogger.Default.LogMode(gormlogger.Warn),
+	DB, err = gorm.Open(gormConfig, &gorm.Config{
+		Logger: gormlogger.Default.LogMode(level),
 	})
 
 	logger.LogError(err)
