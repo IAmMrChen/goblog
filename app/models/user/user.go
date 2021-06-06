@@ -3,6 +3,7 @@ package user
 import (
 	"cyc/goblog/app/models"
 	password2 "cyc/goblog/pkg/password"
+	"cyc/goblog/pkg/route"
 )
 
 type User struct {
@@ -22,6 +23,6 @@ func (user User) ComparePassword(password string) bool  {
 	return password2.CheckHash(password, user.Password)
 }
 
-func (u User) Link() string {
-	return ""
+func (user User) Link() string {
+	return route.Name2URL("users.show", "id", user.GetStringID())
 }
