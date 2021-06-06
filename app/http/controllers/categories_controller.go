@@ -66,6 +66,7 @@ func (cc *CategoriesController) Show(w http.ResponseWriter, r *http.Request) {
 		cc.ResponseForSQLError(w, err)
 	} else {
 
+
 		// ---  2. 加载模板 ---
 		view.Render(w, view.D{
 			"Articles":  articles,
