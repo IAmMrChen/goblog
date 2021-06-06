@@ -1,6 +1,7 @@
 package route
 
 import (
+	"cyc/goblog/pkg/config"
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -21,7 +22,7 @@ func Name2URL(routeName string, pair ...string) string  {
 		return ""
 	}
 
-	return url.String()
+	return config.GetString("app.url") + url.String()
 }
 
 func GetRouteVariable(parameterName string, r *http.Request) string {
