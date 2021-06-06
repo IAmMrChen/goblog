@@ -1,6 +1,7 @@
 package view
 
 import (
+	"cyc/goblog/app/models/category"
 	"cyc/goblog/pkg/auth"
 	"cyc/goblog/pkg/flash"
 	"cyc/goblog/pkg/logger"
@@ -24,11 +25,13 @@ func RenderSimple(w io.Writer, data D, tplFiles ...string) {
 
 // RenderTemplate 渲染视图
 func RenderTemplate(w io.Writer, name string, data D, tplFiles ...string) {
+	var err error
 
 	// 1. 通用模板数据
 	data["isLogined"] = auth.Check()
 	data["loginUser"] = auth.User
 	data["flash"] = flash.All()
+	data["Categories"], err = category.All()
 
 	// 2. 生成模板文件
 	allFiles := getTemplateFiles(tplFiles...)

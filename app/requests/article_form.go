@@ -18,12 +18,12 @@ func ValidateArticleForm(data article.Article) map[string][]string {
 	//messages := govalidator.MapData{
 	//	"title": []string{
 	//		"required:标题为必填项",
-	//		"min:标题长度需大于 3",
-	//		"max:标题长度需小于 40",
+	//		"min_cn:标题长度需大于 3",
+	//		"max_cn:标题长度需小于 40",
 	//	},
 	//	"body": []string{
 	//		"required:文章内容为必填项",
-	//		"min:长度需大于 10",
+	//		"min_cn:长度需大于 10",
 	//	},
 	//}
 	//fmt.Println("data is")
