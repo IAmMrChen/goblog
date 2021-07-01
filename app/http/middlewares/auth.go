@@ -8,6 +8,7 @@ import (
 
 // Auth 登录用户才可访问
 func Auth(next HttpHandlerFunc) HttpHandlerFunc {
+
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		if !auth.Check() {

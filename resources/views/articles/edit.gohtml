@@ -1,22 +1,50 @@
-{{define "title"}}
-  编辑文章
-{{end}}
+{{define "create_or_edit"}}
+  <!DOCTYPE html>
+  <html lang="en">
 
-{{define "main"}}
-  <div class="col-md-9 blog-main">
-    <div class="blog-post bg-white p-5 rounded shadow mb-4">
+  <head>
+    <title>创建文章</title>
+    <link href="/css/editormd.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/app.css" rel="stylesheet">
+  </head>
+  <body>
 
-      <h3>编辑文章</h3>
+    <div class="container-sm">
+      <div class="row mt-5">
+        <div class="col-md-12 blog-main">
+          <div class="blog-post bg-white p-5 rounded shadow mb-4">
 
-      <form action="{{ RouteName2URL "articles.update" "id" .Article.GetStringID }}" method="post">
+            <h3>编辑文章</h3>
 
-        {{template "form-fields" . }}
+            <form action="{{ RouteName2URL "articles.update" "id" .Article.GetStringID }}" method="post">
 
-        <button type="submit" class="btn btn-primary mt-3">更新</button>
+              {{template "form-fields" . }}
 
-      </form>
+              <button type="submit" class="btn btn-primary mt-3">更新</button>
 
-    </div><!-- /.blog-post -->
-  </div>
+            </form>
+
+          </div><!-- /.blog-post -->
+        </div>
+      </div>
+    </div>
+
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.min.js"></script>
+    <script src="/editor_md/js/editormd.min.js"></script>
+
+    <script type="text/javascript">
+      $(function() {
+
+        var editor = editormd("test-editormd", {
+          width   : "100%",
+          height  : 640,
+          path : "/editor_md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
+        });
+      });
+    </script>
+
+  </body>
 
 {{end}}

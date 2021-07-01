@@ -54,7 +54,7 @@ func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request)  {
-	view.Render(w, view.D{}, "articles.create", "articles._form_field")
+	view.RenderCreateOrEdit(w, view.D{}, "articles.create", "articles._form_field")
 }
 
 // Store 文章创建页面
@@ -107,7 +107,7 @@ func (ac *ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 			ac.ResponseForUnauthorized(w, r)
 		} else {
 			// 4. 读取成功，显示表单
-			view.Render(w, view.D{
+			view.RenderCreateOrEdit(w, view.D{
 				"Article": _article,
 				"Errors": view.D{},
 			}, "articles.edit", "articles._form_field")

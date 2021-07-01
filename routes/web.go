@@ -11,7 +11,6 @@ func RegisterWebRoutes(r *mux.Router) {
 
 	//r.Use(middlewares.ForceHTML)
 
-	// 静态页面
 	pc := new(controllers.PagesController)
 
 	r.HandleFunc("/about", pc.About).Methods("GET").Name("about")
@@ -49,6 +48,9 @@ func RegisterWebRoutes(r *mux.Router) {
 	// 静态资源
 	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
 	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))
+	r.PathPrefix("/editor_md/").Handler(http.FileServer(http.Dir("./public/")))
+	r.PathPrefix("/images/").Handler(http.FileServer(http.Dir("./public/editor_md")))
+	r.PathPrefix("/fonts/").Handler(http.FileServer(http.Dir("./public/")))
 
 	// ----- 全局中间件 -----
 	// 开始会话

@@ -6,6 +6,8 @@ import (
 	"cyc/goblog/config"
 	config2 "cyc/goblog/pkg/config"
 	"database/sql"
+	"fmt"
+
 	//_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -27,5 +29,6 @@ func main()  {
 	//db = database.DB
 
 
-	http.ListenAndServe(":" + config2.GetString("app.port"), middlewares.RemoveTrailingSlash(router))
+	err := http.ListenAndServe(":" + config2.GetString("app.port"), middlewares.RemoveTrailingSlash(router))
+	fmt.Println(err)
 }

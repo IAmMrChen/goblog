@@ -18,6 +18,11 @@ func Render(w io.Writer, data D, tplFiles ...string) {
 	RenderTemplate(w, "app", data, tplFiles...)
 }
 
+// 创建、编辑视图
+func RenderCreateOrEdit(w io.Writer, data D, tplFiles ...string) {
+	RenderTemplate(w, "create_or_edit", data, tplFiles...)
+}
+
 // RenderSimple 渲染简单的视图
 func RenderSimple(w io.Writer, data D, tplFiles ...string) {
 	RenderTemplate(w, "simple", data, tplFiles...)
