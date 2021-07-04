@@ -25,6 +25,28 @@ func All() ([]Category, error) {
 	return categories, nil
 }
 
+// 切片map的形式返回数据
+func AllForSliceMap() ([]map[string]interface{}, error)  {
+	resultData := []map[string]interface{}{}
+
+	categoryData, err := All()
+	if err != nil {
+		return resultData, err
+	}
+	for _, value := range categoryData {
+		tempMap := map[string]interface{}{}
+
+		tempMap["id"] = value.ID
+		tempMap["name"] = value.Name
+		tempMap["is_choose"] = false // 用来判断这挑数据是否被选中，体现在编辑时候默认选中
+		tempMap["created_at"] = value.CreatedAt
+
+		resultData = append(resultData, tempMap)
+	}
+
+	return resultData, nil
+}
+
 // Get 通过 ID 获取分类
 func Get(idstr string) (Category, error) {
 	var category Category

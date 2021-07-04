@@ -26,23 +26,28 @@
   <script src="/js/bootstrap.min.js"></script>
   <script src="/js/jquery.min.js"></script>
   <script src="/editor_md/js/editormd.min.js"></script>
+  <script src="/editor_md/lib/marked.min.js"></script>
+  <script src="/editor_md/lib/prettify.min.js"></script>
+
+
 
   <script type="text/javascript">
     $(function() {
 
-      var editor = editormd("test-editormd", {
-        width   : "100%",
-        height  : 640,
-        path : "/editor_md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
-      });
+      // 解析markdown语法内容
+      let oneBody = {{ .Article.HtmlBody }}
+      // 详情页面判断
+      if (oneBody != null) {
+        editormd.markdownToHTML("content_id",{markdown : oneBody});
+      }
 
-      /*
-       // or
-       var editor = editormd({
-       id   : "test-editormd",
-       path : "../lib/"
-       });
-       */
+      // 列表页面判断
+      let bodyList = {{ .Articles }}
+      if (bodyList != null) {
+        for (let i = 0; i < bodyList.length; i++) {
+          editormd.markdownToHTML("content_id_" + i,{markdown : bodyList[i]["Body"]});
+        }
+      }
     });
   </script>
 

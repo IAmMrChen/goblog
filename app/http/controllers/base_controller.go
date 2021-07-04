@@ -10,7 +10,9 @@ import (
 
 // BaseController 基础控制器
 type BaseController struct {
+
 }
+
 
 // ResponseForSQLError 处理 SQL 错误并返回
 func (bc BaseController) ResponseForSQLError(w http.ResponseWriter, err error) {
@@ -31,3 +33,4 @@ func (bc BaseController) ResponseForUnauthorized(w http.ResponseWriter, r *http.
 	flash.Warning("未授权操作！")
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+

@@ -10,12 +10,27 @@
   </div>
 
   <div class="form-group mt-3">
-    <label >内容</label>
-    <div class=" editormd" id="test-editormd">
+    <label for="title">标签</label>
+    <select class="form-control {{if .Errors.title }}is-invalid {{end}}" name="category" >
+      <option value="0" >请选择标签</option>
+      {{ range $key, $category := .Category }}
+          <option value="{{$category.id}}" {{ if $category.is_choose }} selected {{end}}>{{$category.name}}</option>
+      {{ end }}
+    </select>
+    {{ with .Errors.title }}
+      <div class="invalid-feedback">
+        {{ . }}
+      </div>
+    {{ end }}
+  </div>
 
-      <textarea class="editormd-markdown-textarea" name="test-editormd-markdown-doc"></textarea>
+  <div class="form-group mt-3">
+    <label >内容</label>
+    <div class="editormd" id="test-editormd">
+
+      <textarea class="editormd-markdown-textarea" name="test-editormd-markdown-doc">{{ .Article.Body }}</textarea>
       <!-- 第二个隐藏文本域，用来构造生成的HTML代码，方便表单POST提交，这里的name可以任意取，后台接受时以这个name键为准 -->
-      <textarea class="editormd-html-textarea" name="text"></textarea>
+      <textarea class="editormd-html-textarea" name="body">{{ .Article.Body }}</textarea>
     </div>
   </div>
 {{ end }}

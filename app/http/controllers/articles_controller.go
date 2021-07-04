@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"cyc/goblog/app/models/article"
+	category2 "cyc/goblog/app/models/category"
 	"cyc/goblog/app/policies"
 	"cyc/goblog/app/requests"
 	"cyc/goblog/pkg/auth"
@@ -11,6 +12,7 @@ import (
 	"cyc/goblog/pkg/view"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type ArticlesController struct {
@@ -23,6 +25,9 @@ func (ac *ArticlesController) Show(w http.ResponseWriter, r *http.Request) {
 
 	// 2. 读取对应的文章数据
 	articles, err := article.Get(id)
+	if len(articles.Body) > 0 {
+		articles.HtmlBody = view.GetHtml(articles.Body)
+	}
 
 	// 3. 如果出现错误
 	if err != nil {
@@ -44,6 +49,9 @@ func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
 	} else {
+		for index, value := range articles {
+			articles[index].HtmlBody = view.GetHtml(value.Body)
+		}
 		// ---  2. 加载模板 ---
 		view.Render(w, view.D{
 			"Articles": articles,
@@ -54,7 +62,13 @@ func (ac *ArticlesController) Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func (*ArticlesController) Create(w http.ResponseWriter, r *http.Request)  {
-	view.RenderCreateOrEdit(w, view.D{}, "articles.create", "articles._form_field")
+
+	// 获取标签类型
+	categoryData, _ := category2.AllForSliceMap()
+
+	view.RenderOption(w, view.D{
+		"Category": categoryData,
+	}, "articles.create", "articles._form_field")
 }
 
 // Store 文章创建页面
@@ -63,9 +77,15 @@ func (*ArticlesController) Store(w http.ResponseWriter, r *http.Request) {
 	title := r.PostFormValue("title")
 	body := r.PostFormValue("body")
 
+	fmt.Println("category is", r.PostFormValue("category"))
+
+	categoryIdInt, _ := strconv.Atoi(r.PostFormValue("category"))
+	categoryId := uint64(categoryIdInt)
+
 	_article := article.Article{
 		Title: title,
 		Body:  body,
+		CategoryID: categoryId,
 		UserID: auth.User().ID,
 	}
 
@@ -103,13 +123,25 @@ func (ac *ArticlesController) Edit(w http.ResponseWriter, r *http.Request)  {
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
 	} else {
+
+		// 获取标签
+		categoryData, _ := category2.AllForSliceMap()
+
+		// 判断哪个标签使选中的
+		for _, value := range categoryData{
+			if value["id"] == _article.CategoryID {
+				value["is_choose"] = true
+			}
+		}
+
 		if !policies.CanModifyArticle(_article) {
 			ac.ResponseForUnauthorized(w, r)
 		} else {
 			// 4. 读取成功，显示表单
-			view.RenderCreateOrEdit(w, view.D{
+			view.RenderOption(w, view.D{
 				"Article": _article,
 				"Errors": view.D{},
+				"Category": categoryData,
 			}, "articles.edit", "articles._form_field")
 		}
 	}
@@ -121,8 +153,7 @@ func (ac *ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 
 	// 2. 读取对应的文章数据
 	_article, err := article.Get(id)
-	fmt.Println("_article is")
-	fmt.Println(_article)
+
 	// 3. 如果出现错误
 	if err != nil {
 		ac.ResponseForSQLError(w, err)
@@ -136,8 +167,9 @@ func (ac *ArticlesController) Update(w http.ResponseWriter, r *http.Request)  {
 			// 4.1 表单验证
 			_article.Title = r.PostFormValue("title")
 			_article.Body = r.PostFormValue("body")
-			fmt.Println("_article is")
-			fmt.Println(_article)
+			categoryIdInt, _ := strconv.Atoi(r.PostFormValue("category"))
+			_article.CategoryID = uint64(categoryIdInt)
+
 			errors := requests.ValidateArticleForm(_article)
 
 			if len(errors) == 0 {

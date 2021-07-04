@@ -1,23 +1,14 @@
-{{define "create_or_edit"}}
-  <!DOCTYPE html>
-  <html lang="en">
+{{ define "title"}}
+  编辑
+{{ end }}
 
-  <head>
-    <title>创建文章</title>
-    <link href="/css/editormd.css" rel="stylesheet">
-    <link href="/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/css/app.css" rel="stylesheet">
-  </head>
-  <body>
-
-    <div class="container-sm">
-      <div class="row mt-5">
+{{define "main"}}
         <div class="col-md-12 blog-main">
           <div class="blog-post bg-white p-5 rounded shadow mb-4">
 
             <h3>编辑文章</h3>
 
-            <form action="{{ RouteName2URL "articles.update" "id" .Article.GetStringID }}" method="post">
+            <form action="{{ RouteName2URL "articles.update" "id" .Article.GetStringID }}" method="post" id="target">
 
               {{template "form-fields" . }}
 
@@ -27,24 +18,5 @@
 
           </div><!-- /.blog-post -->
         </div>
-      </div>
-    </div>
-
-    <script src="/js/bootstrap.min.js"></script>
-    <script src="/js/jquery.min.js"></script>
-    <script src="/editor_md/js/editormd.min.js"></script>
-
-    <script type="text/javascript">
-      $(function() {
-
-        var editor = editormd("test-editormd", {
-          width   : "100%",
-          height  : 640,
-          path : "/editor_md/lib/" // Autoload modules mode, codemirror, marked... dependents libs path
-        });
-      });
-    </script>
-
-  </body>
 
 {{end}}

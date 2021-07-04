@@ -45,6 +45,9 @@ func RegisterWebRoutes(r *mux.Router) {
 	r.HandleFunc("/categories", middlewares.Auth(cc.Store)).Methods("POST").Name("categories.store")
 	r.HandleFunc("/categories/{id:[0-9]+}", cc.Show).Methods("GET").Name("categories.show")
 
+	uIC := new(controllers.UploadController)
+	r.HandleFunc("/upload", uIC.UploadImage).Methods("POST").Name("upload.file")
+
 	// 静态资源
 	r.PathPrefix("/css/").Handler(http.FileServer(http.Dir("./public")))
 	r.PathPrefix("/js/").Handler(http.FileServer(http.Dir("./public")))

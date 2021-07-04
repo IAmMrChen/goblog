@@ -2,8 +2,10 @@ package article
 
 import (
 	"cyc/goblog/app/models"
+	"cyc/goblog/app/models/category"
 	"cyc/goblog/app/models/user"
 	"cyc/goblog/pkg/route"
+	"html/template"
 	"strconv"
 )
 
@@ -12,9 +14,11 @@ type Article struct {
 	models.BaseModel
 	Title string
 	Body  string
+	HtmlBody template.HTML
 	UserID uint64 `gorm: "not null;index"`
 	User user.User
 	CategoryID uint64 `gorm:"not null;default:4;index"`
+	Category category.Category
 }
 
 func (article Article) Link() string {
